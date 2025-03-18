@@ -1,16 +1,33 @@
 #include "socket.hh"
-
+#include <format>
 #include <cstdlib>
 #include <iostream>
 #include <span>
 #include <string>
+//#include<string_view>
 
 using namespace std;
 
 void get_URL( const string& host, const string& path )
 {
-  cerr << "Function called: get_URL(" << host << ", " << path << ")\n";
-  cerr << "Warning: get_URL() has not been implemented yet.\n";
+   try {
+        // Create a TCP socket
+        TCPSocket socket;
+
+        // Connect to the host on port 80 (HTTP)
+        socket.connect(Address(host, "http"));
+        // Send the HTTP request
+        socket.write(string_view("GET "+path+" HTTP/1.1\r\nHost: "+host+"\r\nConnection: close\r\n\r\n"));
+
+        // Read and print the server's response until EOF
+        string response;
+        while (not socket.eof()) {
+            socket.read(response);
+            std::cout << response;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
 }
 
 int main( int argc, char* argv[] )
